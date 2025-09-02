@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import loginRoutes from "./routes/LoginRoutes";
 import patientRoutes from "./routes/PatientRoutes";
 import doctorRoutes from "./routes/DoctorRoutes";
+import appointmentRoutes from "./routes/AppointmentRoutes";
 import express from "express";
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ mongoose
 app.use("/auth", loginRoutes);
 app.use("/patient", patientRoutes);
 app.use("/doctor", doctorRoutes);
+app.use("/appointment", appointmentRoutes);
 app.get("/", (req, res) => {
 res.send("Backend is working!");
 });

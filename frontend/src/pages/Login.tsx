@@ -15,7 +15,7 @@ export default function Login() {
       setError("Invalid credentials");
       return;
     }
-    navigate("/dashboard");
+    navigate("/admin");
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

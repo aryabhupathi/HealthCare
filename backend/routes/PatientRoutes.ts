@@ -1,92 +1,86 @@
-import { Router, Request, Response } from "express";
-import PatientProfile from "../models/patient/PatientProfile";
-import Appointment from "../models/patient/Appointment";
-import MedicalRecord from "../models/patient/MedicalRecord";
-const router = Router();
-router.get("/:userId/profile", async (req: Request, res: Response) => {
+import express, { Request, Response } from "express";
+import Patient from "../models/Patient";
+const router = express.Router();
+router.get("/", async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
-    console.log(userId, "uuuuuuuuuuuuuuuuu");
-    const profile = await PatientProfile.findOne({ userId }).populate("");
-    console.log(profile, "ppppppppppppp");
-    if (!profile) {
-      return res.status(404).json({
-        success: false,
-        message: "Profile not found for this user",
-      });
-    }
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const [patients, total] = await Promise.all([
+      Patient.find().skip(skip).limit(limit),
+      Patient.countDocuments(),
+    ]);
     res.json({
       success: true,
-      data: profile,
+      data: patients,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+        limit,
+      },
     });
   } catch (err: any) {
-    console.error("Error fetching profile:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching profile",
-    });
+    console.error("Error fetching patients:", err.message);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 });
-router.get("/profiles", async (req: Request, res: Response) => {
+router.get("/:id", async (req: Request, res: Response) => {
   try {
-    const profiles = await PatientProfile.find();
-    res.json({
-      success: true,
-      count: profiles.length,
-      data: profiles,
-    });
-  } catch (err: any) {
-    console.error("Error fetching users:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching users",
-    });
-  }
-});
-router.get("/:userId/appointments", async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const patientProfile = await PatientProfile.findOne({ userId });
-    if (!patientProfile) {
-      return res.status(404).json({
-        success: false,
-        message: "Patient profile not found",
-      });
-    }
-    const appointments = await Appointment.find({
-      patientId: patientProfile._id,
-    })
-      .populate("doctorId", "specialization experience")
-      .sort({ date: -1 });
-    res.json({
-      success: true,
-      data: appointments,
-    });
-  } catch (err: any) {
-    console.error("Error fetching appointments:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching appointments",
-    });
-  }
-});
-router.get("/:userId/records", async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.params;
-    const patientProfile = await PatientProfile.findOne({ userId });
-    if (!patientProfile) {
+    const patient = await Patient.findById(req.params.id).populate(
+      "assignedDoctor",
+      "name specialization"
+    );
+    if (!patient)
       return res
         .status(404)
-        .json({ success: false, message: "Patient profile not found" });
-    }
-    const records = await MedicalRecord.find({ patientId: patientProfile._id })
-      .populate("doctorId", "name specialization")
-      .sort({ date: -1 });
-    res.json({ success: true, data: records });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, message: "Error fetching medical records" });
+        .json({ success: false, message: "Patient not found" });
+    res.json({ success: true, data: patient });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+router.post("/", async (req: Request, res: Response) => {
+  try {
+    const patient = await Patient.create(req.body);
+    res.status(201).json({ success: true, data: patient });
+  } catch (err: any) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid data",
+      error: err.message,
+    });
+  }
+});
+router.put("/:id", async (req: Request, res: Response) => {
+  try {
+    const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!patient)
+      return res
+        .status(404)
+        .json({ success: false, message: "Patient not found" });
+    res.json({ success: true, data: patient });
+  } catch (err: any) {
+    res.status(400).json({
+      success: false,
+      message: "Update failed",
+      error: err.message,
+    });
+  }
+});
+router.delete("/:id", async (req: Request, res: Response) => {
+  try {
+    const patient = await Patient.findByIdAndDelete(req.params.id);
+    if (!patient)
+      return res
+        .status(404)
+        .json({ success: false, message: "Patient not found" });
+    res.json({ success: true, message: "Patient deleted" });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: "Delete failed" });
   }
 });
 export default router;

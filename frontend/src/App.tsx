@@ -1,45 +1,34 @@
-import { Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import PatientDashboard from "./pages/PatientDashboard";
-import DoctorDashboard from "./pages/DoctorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import Appointments from "./components/patients/appointments";
-import Admin from "./pages/Admin";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { useAuth } from "./context/AuthContext";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashBoardLayout";
-import Profile from "./components/patients/profiile";
-import MedicalRecords from "./components/patients/medicalRecords";
-function App() {
-  const { user } = useAuth();
+import AdminDashboard from "./pages/Dashboard/AdminDashboard";
+import Patient from "./pages/Admin/Patient";
+import Doctor from "./pages/Admin/Doctor";
+import Appointment from "./pages/Admin/Appointment";
+import Record from "./pages/Admin/Record";
+import Bills from "./pages/Admin/Bills";
+import Report from "./pages/Admin/Report";
+import Settings from "./pages/Admin/Settings";
+import Landing from "./pages/Landing";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        {user?.role === "patient" && (
-          <Route index element={<PatientDashboard />} />
-        )}
-        {user?.role === "doctor" && (
-          <Route index element={<DoctorDashboard />} />
-        )}
-        {user?.role === "admin" && <Route index element={<AdminDashboard />} />}
-        <Route path="appointments" element={<Appointments />} />
-        <Route path="records" element={<MedicalRecords />} />
-        <Route path="admin" element={<Admin />} />
-        <Route path="profile" element={<Profile />} />
+      <Route path="/admin/*" element={<DashboardLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="patients" element={<Patient />} />
+        <Route path="doctors" element={<Doctor />} />
+        <Route path="appointments" element={<Appointment />} />
+        <Route path="medical-records" element={<Record />} />
+        <Route path="billing" element={<Bills />} />
+        <Route path="reports" element={<Report />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
   );
 }
-export default App;

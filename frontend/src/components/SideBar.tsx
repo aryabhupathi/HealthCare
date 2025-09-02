@@ -1,11 +1,24 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IoHome, IoCalendar } from "react-icons/io5";
-import { FaUserGroup, FaTooth } from "react-icons/fa6";
+import { FaUserGroup } from "react-icons/fa6";
 import { LuSquareMenu } from "react-icons/lu";
 import { BsFillArrowRightSquareFill } from "react-icons/bs";
 import { useAuth } from "../context/AuthContext";
 import { FiArrowRightCircle, FiArrowLeftCircle } from "react-icons/fi";
+import {
+  FaUser,
+  FaNotesMedical,
+  FaPrescriptionBottleAlt,
+  FaFileInvoiceDollar,
+  FaHeartbeat,
+  FaSyringe,
+} from "react-icons/fa";
+import {
+  MdMedicalServices,
+  MdOutlineNotificationsActive,
+  MdMessage,
+} from "react-icons/md";
 import type { JSX } from "react";
 export default function Sidebar() {
   const { user, logout } = useAuth();
@@ -27,35 +40,54 @@ export default function Sidebar() {
   };
   const links: { to: string; label: string; icon: JSX.Element }[] = [];
   if (user.role === "patient") {
-  links.push(
-    {
-      to: "/dashboard",
-      label: "Dashboard",
-      icon: <IoHome className="h-5 w-5" />,
-    },
-    {
-      to: "/dashboard/profile",
-      label: "Profile",
-      icon: <FaUserGroup className="h-5 w-5" />,
-    },
-    {
-      to: "/dashboard/appointments",
-      label: "Appointments",
-      icon: <IoCalendar className="h-5 w-5" />,
-    },
-    {
-      to: "/dashboard/doctors",
-      label: "Doctors",
-      icon: <FaTooth className="h-5 w-5" />,
-    },
-    {
-      to: "/dashboard/records",
-      label: "Medical Records",
-      icon: <LuSquareMenu className="h-5 w-5" />,
-    }
-  );
-}
-
+    links.push(
+      {
+        to: "/dashboard",
+        label: "Dashboard",
+        icon: <IoHome className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/profile",
+        label: "Profile",
+        icon: <FaUser className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/appointments",
+        label: "Appointments",
+        icon: <IoCalendar className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/doctors",
+        label: "Doctors",
+        icon: <MdMedicalServices className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/records",
+        label: "Medical Records",
+        icon: <FaNotesMedical className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/prescriptions",
+        label: "Prescriptions",
+        icon: <FaPrescriptionBottleAlt className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/billing",
+        label: "Billing",
+        icon: <FaFileInvoiceDollar className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/messages",
+        label: "Messages",
+        icon: <MdMessage className="h-5 w-5" />,
+      },
+      {
+        to: "/dashboard/notifications",
+        label: "Notifications",
+        icon: <MdOutlineNotificationsActive className="h-5 w-5" />,
+      }
+    );
+  }
   if (user.role === "doctor") {
     links.push(
       {
@@ -75,7 +107,7 @@ export default function Sidebar() {
       {
         to: "/dashboard/admin",
         label: "Admin Panel",
-        icon: <FaTooth className="h-5 w-5" />,
+        icon: <MdMedicalServices className="h-5 w-5" />,
       },
       {
         to: "/dashboard/users",
@@ -103,10 +135,10 @@ export default function Sidebar() {
       )}
       <aside
         className={`fixed top-0 left-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-        ${open ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0
-        ${collapsed ? "md:w-20" : "md:w-64"}
-        w-72 z-50 flex flex-col`}
+  ${open ? "translate-x-0" : "-translate-x-full"}
+  md:translate-x-0
+  ${collapsed ? "md:w-20" : "md:w-64"}
+  w-72 z-50 flex flex-col`}
       >
         <div className="flex items-center px-4 py-5 border-b">
           {!collapsed && (
@@ -144,14 +176,14 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-        <nav className="px-2 py-4 space-y-1.5 flex-1">
+        <nav className="flex-1 px-2 py-4 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {links.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
               className={`flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-gray-700 transition
-              ${collapsed ? "md:justify-center" : ""}`}
+        ${collapsed ? "md:justify-center" : ""}`}
             >
               {link.icon}
               <span
@@ -166,7 +198,7 @@ export default function Sidebar() {
           <button
             onClick={handleLogout}
             className={`flex items-center gap-3 w-full p-3 rounded-lg hover:bg-red-50 text-red-600 transition
-            ${collapsed ? "md:justify-center" : ""}`}
+      ${collapsed ? "md:justify-center" : ""}`}
           >
             <BsFillArrowRightSquareFill className="h-5 w-5" />
             <span className={`inline ${collapsed ? "md:hidden" : "md:inline"}`}>
